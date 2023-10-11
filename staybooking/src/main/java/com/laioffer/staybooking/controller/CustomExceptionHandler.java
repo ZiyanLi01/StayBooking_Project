@@ -1,5 +1,6 @@
 package com.laioffer.staybooking.controller;
 
+import com.laioffer.staybooking.exception.StayNotExistException;
 import com.laioffer.staybooking.exception.UserAlreadyExistException;
 import com.laioffer.staybooking.exception.UserNotExistException;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,10 @@ public class CustomExceptionHandler {
     public final ResponseEntity<String> handleUserNotExistExceptions(Exception ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
-
+    @ExceptionHandler(StayNotExistException.class)
+    public final ResponseEntity<String> handleStayNotExistExceptions(Exception ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }
+
 
