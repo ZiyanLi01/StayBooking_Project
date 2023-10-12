@@ -1,8 +1,10 @@
 package com.laioffer.staybooking.model;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.laioffer.staybooking.model.StayImage;
+import com.laioffer.staybooking.model.StayReservedDate;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
@@ -19,17 +21,20 @@ public class Stay implements Serializable {
     private String name;
     private String description;
     private String address;
+
     @JsonProperty("guest_number")
     private int guestNumber;
 
-    @ManyToOne
     @JoinColumn(name = "user_id")
+    @ManyToOne
     private User host;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "stay", cascade = CascadeType.ALL, fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "stay", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<StayReservedDate> reservedDates;
 
+    @OneToMany(mappedBy = "stay", cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+    private List<StayImage> images;
 
     public Stay() {}
 
@@ -41,6 +46,16 @@ public class Stay implements Serializable {
         this.guestNumber = builder.guestNumber;
         this.host = builder.host;
         this.reservedDates = builder.reservedDates;
+        this.images = builder.images;
+    }
+
+    public List<StayImage> getImages() {
+        return images;
+    }
+
+    public Stay setImages(List<StayImage> images) {
+        this.images = images;
+        return this;
     }
 
     public Long getId() {
@@ -94,6 +109,9 @@ public class Stay implements Serializable {
         @JsonProperty("dates")
         private List<StayReservedDate> reservedDates;
 
+        @JsonProperty("images")
+        private List<StayImage> images;
+
         public Builder setId(Long id) {
             this.id = id;
             return this;
@@ -129,9 +147,14 @@ public class Stay implements Serializable {
             return this;
         }
 
+        public Builder setImages(List<StayImage> images) {
+            this.images = images;
+            return this;
+        }
+
         public Stay build() {
             return new Stay(this);
         }
     }
-}
 
+}
