@@ -34,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST,"/authenticate/*").permitAll()
                 .antMatchers("/stays").hasAuthority("ROLE_HOST")
                 .antMatchers("/stays/*").hasAuthority("ROLE_HOST")
+                .antMatchers("/search").hasAuthority("ROLE_GUEST")
                 .anyRequest().authenticated()
                 .and()
                 .csrf()
@@ -66,3 +67,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 }
+

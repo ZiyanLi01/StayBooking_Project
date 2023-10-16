@@ -1,6 +1,7 @@
 package com.laioffer.staybooking.service;
 
 import com.laioffer.staybooking.exception.StayNotExistException;
+import com.laioffer.staybooking.model.Location;
 import com.laioffer.staybooking.model.Stay;
 import com.laioffer.staybooking.model.StayImage;
 import com.laioffer.staybooking.model.User;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.laioffer.staybooking.repository.LocationRepository;
 
 @Service
 public class StayService {
@@ -20,9 +22,15 @@ public class StayService {
 
     private final ImageStorageService imageStorageService;
 
-    public StayService(StayRepository stayRepository, ImageStorageService imageStorageService) {
+    private final LocationRepository locationRepository;
+
+    private final GeoCodingService geoCodingService;
+
+    public StayService(StayRepository stayRepository, LocationRepository locationRepository, ImageStorageService imageStorageService, GeoCodingService geoCodingService) {
         this.stayRepository = stayRepository;
+        this.locationRepository = locationRepository;
         this.imageStorageService = imageStorageService;
+        this.geoCodingService = geoCodingService;
     }
 
     public List<Stay> listByUser(String username) {
@@ -41,14 +49,20 @@ public class StayService {
 
     @Transactional
     public void add(Stay stay, MultipartFile[] images) {
-        List<String> mediaLinks = Arrays.stream(images).parallel().map(image -> imageStorageService.save(image)).collect(Collectors.toList());
+        List<String> mediaLinks = Arrays.stream(images).parallel().map(
+                image -> imageStorageService.save(image)
+        ).collect(Collectors.toList());
+
         List<StayImage> stayImages = new ArrayList<>();
         for (String mediaLink : mediaLinks) {
             stayImages.add(new StayImage(mediaLink, stay));
         }
-        stay.setImages(stayImages);
 
+        stay.setImages(stayImages);
         stayRepository.save(stay);
+
+        Location location = geoCodingService.getLatLng(stay.getId(), stay.getAddress());
+        locationRepository.save(location);
     }
 
     @Transactional
@@ -62,7 +76,6 @@ public class StayService {
         stayRepository.deleteById(stayId);
     }
 }
-
 
 
 
