@@ -1,7 +1,9 @@
 package com.laioffer.staybooking.controller;
 
+import com.laioffer.staybooking.model.Reservation;
 import com.laioffer.staybooking.model.Stay;
 import com.laioffer.staybooking.model.User;
+import com.laioffer.staybooking.service.ReservationService;
 import com.laioffer.staybooking.service.StayService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,9 +15,13 @@ import java.util.List;
 public class StayController {
     private final StayService stayService;
 
-    public StayController(StayService stayService) {
+    private final ReservationService reservationService;
+
+    public StayController(StayService stayService, ReservationService reservationService) {
         this.stayService = stayService;
+        this.reservationService = reservationService;
     }
+
 
     @GetMapping(value = "/stays")
     public List<Stay> listStays(Principal principal) {
@@ -51,7 +57,10 @@ public class StayController {
     public void deleteStay(@PathVariable Long stayId, Principal principal) {
         stayService.delete(stayId, principal.getName());
     }
+
+    @GetMapping(value = "/stays/reservations/{stayId}")
+    public List<Reservation> listReservations(@PathVariable Long stayId) {
+        return reservationService.listByStay(stayId);
+    }
 }
-
-
 

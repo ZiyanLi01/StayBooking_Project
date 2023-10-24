@@ -16,6 +16,9 @@ public class staybookingApplication {
         Connection connection = null;
         Statement statement = null;
         String postgresUrl = "localhost";
+        String username = "postgres";
+        String password = "secret";
+
         try {
             logger.debug("Creating database if not exist...");
             connection = DriverManager.getConnection("jdbc:postgresql://" + postgresUrl + ":5432/", "postgres", "secret");
