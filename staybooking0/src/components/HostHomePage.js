@@ -18,7 +18,7 @@ import {
 import Text from "antd/lib/typography/Text";
 import React from "react";
 import { getStaysByHost } from "../utils";
-import UploadStay from "./UploadStay";
+import UploadStay from "./UploadStay.js";
 
 const { TabPane } = Tabs;
 
@@ -133,7 +133,7 @@ class MyStays extends React.Component {
                 </div>
               }
               actions={[]}
-              extra={null}
+              extra={StayDetailInfoButton}
             >
               <Carousel
                 dots={false}
