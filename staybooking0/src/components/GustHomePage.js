@@ -13,12 +13,116 @@ import {
   Carousel,
   Modal,
 } from "antd";
-import { bookStay, getReservations, searchStays } from "../utils";
+import {
+  bookStay,
+  cancelReservation,
+  getReservations,
+  searchStays,
+} from "../utils";
 import { LeftCircleFilled, RightCircleFilled } from "@ant-design/icons";
 import { StayDetailInfoButton } from "./HostHomePage";
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
+
+class CancelReservationButton extends React.Component {
+  state = {
+    loading: false,
+  };
+
+  handleRemoveStay = async () => {
+    const { stay, onRemoveSuccess } = this.props;
+    this.setState({
+      loading: true,
+    });
+
+    try {
+      await cancelReservation(stay.id);
+      onRemoveSuccess();
+    } catch (error) {
+      message.error(error.message);
+    } finally {
+      this.setState({
+        loading: false,
+      });
+    }
+  };
+
+  render() {
+    return (
+      <Button
+        loading={this.state.loading}
+        onClick={this.handleRemoveStay}
+        danger={true}
+        shape="round"
+        type="primary"
+      >
+        Cancel Reservation
+      </Button>
+    );
+  }
+}
+
+class MyReservations extends React.Component {
+  state = {
+    loading: false,
+    data: [],
+  };
+
+  componentDidMount() {
+    this.loadData();
+  }
+
+  loadData = async () => {
+    this.setState({
+      loading: true,
+    });
+
+    try {
+      const resp = await getReservations();
+      this.setState({
+        data: resp,
+      });
+    } catch (error) {
+      message.error(error.message);
+    } finally {
+      this.setState({
+        loading: false,
+      });
+    }
+  };
+
+  render() {
+    return (
+      <List
+        style={{ width: 1000, margin: "auto" }}
+        loading={this.state.loading}
+        dataSource={this.state.data}
+        renderItem={(item) => (
+          <List.Item
+            actions={[
+              <CancelReservationButton
+                stay={item}
+                onRemoveSuccess={this.loadData}
+              />,
+            ]}
+          >
+            <List.Item.Meta
+              title={<Text>{item.stay.name}</Text>}
+              description={
+                <>
+                  <Text>Checkin Date: {item.checkin_date}</Text>
+                  <br />
+                  <Text>Checkout Date: {item.checkout_date}</Text>
+                </>
+              }
+            />
+          </List.Item>
+        )}
+      />
+    );
+  }
+}
 
 class BookStayButton extends React.Component {
   state = {
@@ -230,7 +334,7 @@ class GustHomePage extends React.Component {
           <SearchStays />
         </TabPane>
         <TabPane tab="My Reservations" key="2">
-          My Reservation content
+          <MyReservations />
         </TabPane>
       </Tabs>
     );
